@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Categorie;
+use App\Form\CategorieType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -55,7 +57,7 @@ class IndexController extends AbstractController
         return new Response('Article enregisté avec id' . $article->getId());
     }
 
-    #[Route('/article/{id}', 'article_show')]
+    #[Route('/article/show/{id}', 'article_show')]
     public function show($id, EntityManagerInterface $em)
     {
         $article = $em->getRepository(Article::class)->find($id);
@@ -87,6 +89,23 @@ class IndexController extends AbstractController
         $response = new Response();
         $response->send();
         return $this->redirectToRoute('acticle_list');
+    }
+
+    #[Route('/categorie/new', name: 'new_categorie', methods: ["GET", "POST"])] 
+    public function newCategorie (Request $req, EntityManagerInterface $em): Response 
+    { 
+      $categorie = new Categorie(); 
+      $form = $this->createForm (CategorieType::class, $categorie); 
+      $form->handleRequest($req); 
+      
+      if($form->isSubmitted() && $form->isValid()) 
+      { 
+        $categorie = $form->getData(); 
+        $em->getRepository (Categorie::class); 
+        $em->persist($categorie); $em->flush(); 
+        return $this->redirectToRoute('acticle_list'); 
+    } 
+        return $this->render('categories/newCategorie.html.twig', ['form' => $form->createView()] ); 
     }
 
 
